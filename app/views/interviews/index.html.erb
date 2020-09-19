@@ -1,0 +1,28 @@
+<%= link_to 'New interview', new_interview_path %>
+
+<h1>Listing Interviews</h1>
+ 
+<table>
+  <tr>
+    <th>StartTime</th>
+    <th>EndTime</th>
+    <th>Participants</th>
+    <th colspan="2"></th>
+  </tr>
+ 
+  <% @interviews.each do |interview| %>
+    <tr>
+      <td><%= interview.startTime %></td>
+      <td><%= interview.endTime %></td>
+      <td>
+        <% interview.users.each do |interviewer| %>
+          <%= interviewer.email %>
+        <% end %>
+      </td>
+      <td><%= link_to 'Edit', edit_interview_path(interview) %></td>
+      <td><%= link_to 'Delete', interview_path(interview),
+              method: :delete,
+              data: { confirm: 'Are you sure?' } %></td>
+    </tr>
+  <% end %>
+</table>
