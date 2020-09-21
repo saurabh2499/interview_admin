@@ -10,7 +10,7 @@ class InterviewsController < ApplicationController
 	end
 
 	def create
-	  @interview= Interview.new(:startTime => interview_params[:startTime], :endTime => interview_params[:endTime])
+	  @interview= Interview.new(interview_params)
  	  part=params[:interview][:participants]
  	  @users=User.all
  	  unless part.nil?
@@ -21,6 +21,10 @@ class InterviewsController < ApplicationController
  	  end
  	  @interview.user_ids = part
  	  if @interview.save
+ 	  	@interview.users.each do |user|
+	 	  	UserMailer.user_welcome(user , @interview).deliver_now
+	 	  	UserMailer.interview_reminder(user,@interview).deliver_later(wait: (@interview.startTime- 30.minutes- Time.now))
+	 	end
   		redirect_to interviews_path
       else
   		render 'new'
@@ -38,7 +42,11 @@ class InterviewsController < ApplicationController
  	  	@selected=Array.new
  	  end
  	  @interview.user_ids = part
-	  if @interview.update(:startTime => interview_params[:startTime], :endTime => interview_params[:endTime])
+	  if @interview.update(interview_params)
+	  	@interview.users.each do |user|
+	  		#UserMailer.user_update(user , @interview).deliver_now
+	  		#UserMailer.interview_reminder(user,@interview).deliver_later(wait_until: )
+    	end
     	redirect_to interviews_path
   	  else
     	render 'edit'
@@ -61,6 +69,6 @@ class InterviewsController < ApplicationController
 
 	private
   		def interview_params
-    	  params.require(:interview).permit(:startTime, :endTime, :participants => [])
+    	  params.require(:interview).permit(:startTime, :endTime, :resume)
   		end
 end

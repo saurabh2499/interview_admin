@@ -7,7 +7,7 @@
     <th>StartTime</th>
     <th>EndTime</th>
     <th>Participants</th>
-    <th colspan="2"></th>
+    <th colspan="3"></th>
   </tr>
  
   <% @interviews.each do |interview| %>
@@ -19,6 +19,7 @@
           <%= interviewer.email %>
         <% end %>
       </td>
+      <td><%= link_to 'resume', interview.resume if interview.resume.attached? %></td>
       <td><%= link_to 'Edit', edit_interview_path(interview) %></td>
       <td><%= link_to 'Delete', interview_path(interview),
               method: :delete,

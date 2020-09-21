@@ -1,5 +1,7 @@
 class Interview < ApplicationRecord
 	
+	has_one_attached :resume
+
 	validates :startTime, presence: true
 	validates :endTime, presence: true
 	validate :endTime_cannot_be_in_the_past
