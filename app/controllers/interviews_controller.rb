@@ -4,9 +4,9 @@ class InterviewsController < ApplicationController
 	end
 
 	def new
-	  @interview= Interview.new
-	  @users=User.all
-      @selected=Array.new
+	  @interview = Interview.new
+	  @users = User.all
+      @selected = Array.new
 	end
 
 	def create
@@ -21,10 +21,8 @@ class InterviewsController < ApplicationController
  	  end
  	  @interview.user_ids = part
  	  if @interview.save
- 	  	@interview.users.each do |user|
-	 	  	UserMailer.user_welcome(user , @interview).deliver_now
-	 	  	UserMailer.interview_reminder(user,@interview).deliver_later(wait: (@interview.startTime- 30.minutes- Time.now))
-	 	end
+ 	  	PostmanWorker.perform_async(@interview.id)
+ 	  	ReminderWorker.perform_at(@interview.startTime- 30.minutes,@interview.id)
   		redirect_to interviews_path
       else
   		render 'new'
@@ -43,10 +41,8 @@ class InterviewsController < ApplicationController
  	  end
  	  @interview.user_ids = part
 	  if @interview.update(interview_params)
-	  	@interview.users.each do |user|
-	  		#UserMailer.user_update(user , @interview).deliver_now
-	  		#UserMailer.interview_reminder(user,@interview).deliver_later(wait_until: )
-    	end
+	  	UpdateWorker.perform_async(@interview.id)
+	  	ReminderWorker.perform_at(@interview.startTime-30.minutes, @interview.id)
     	redirect_to interviews_path
   	  else
     	render 'edit'
@@ -63,7 +59,7 @@ class InterviewsController < ApplicationController
 	def destroy
 	  @interview = Interview.find(params[:id])
 	  @interview.destroy
-	 
+	  delete_previous_scheduled_jobs(@interview.id)
 	  redirect_to interviews_path
 	end
 
