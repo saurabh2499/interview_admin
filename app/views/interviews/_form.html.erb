@@ -1,0 +1,38 @@
+<%= form_with model: @interview, local: true do |form| %>
+
+  <% if @interview.errors.any? %>
+    <div id="error_explanation">
+      <h2>
+        <%= pluralize(@interview.errors.count, "error") %> prohibited
+        this article from being saved:
+      </h2>
+      <ul>
+        <% @interview.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+    <%= form.label :startTime %><br>
+    <%= form.datetime_field :startTime, :required => true %>
+  </p>
+ 
+  <p>
+    <%= form.label :endTime %><br>
+    <%= form.datetime_field :endTime, :required => true %>
+  </p>
+  <p>
+    Participants<br>
+    <%= form.select(:participants, @users.collect {|p| [ p.email, p.id ]}, { :selected => @selected.collect {|p| p.id}},          {:required => true, :multiple => true})
+    %>
+  </p>
+  <p>
+    <%= form.label :resume %>
+    <%= form.file_field :resume %>
+  <p>
+    <%= form.submit %>
+  </p>
+ 
+<% end %>
+
